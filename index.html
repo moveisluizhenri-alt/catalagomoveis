@@ -125,7 +125,6 @@
       width: 100%;
     }
 
-    /* Correção aplicada aqui: adicionado padding de 1.5rem para evitar cortes no brilho */
     .categories-list {
       display: flex;
       gap: 1.5rem;
@@ -615,9 +614,7 @@
           <span id="lightboxPrice" style="color: var(--accent); font-weight: 700; font-size: 1.1rem;"></span>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 10px;">
-          <!-- O botão verde brilhante agora fica AQUI, junto com a foto ampliada -->
           <a class="btn" id="btnZapLightbox" href="" target="_blank" style="background-color: #25D366; color: white; border: none; font-weight: bold;">📲 Enviar p/ Vendedor</a>
-          
           <button class="btn btn-primary" id="btnCopyDetails">Copiar Detalhes</button>
           <button class="btn btn-secondary" onclick="closeModals()">Fechar</button>
         </div>
@@ -905,15 +902,31 @@
       document.getElementById("adminModal").classList.add("active");
     });
 
+    // SISTEMA DE SENHA NOS 3 CLIQUES
     let clickCount = 0;
     document.getElementById("brandTitle").addEventListener("click", () => {
       clickCount++;
       if (clickCount >= 3) {
-        document.body.classList.toggle("is-admin");
-        const active = document.body.classList.contains("is-admin");
-        showToast(active ? "Modo Administrador ATIVADO" : "Modo Administrador DESativado");
-        renderProducts();
-        clickCount = 0;
+        clickCount = 0; // zera o contador
+        const isActive = document.body.classList.contains("is-admin");
+        
+        if (isActive) {
+          // Se já estiver logado, bloqueia na hora sem pedir senha
+          document.body.classList.remove("is-admin");
+          showToast("Modo Administrador DESativado");
+          renderProducts();
+        } else {
+          // Se estiver bloqueado, pede a senha
+          const senha = prompt("Introduza a palavra-passe para editar o catálogo:");
+          
+          if (senha === "moveis123") {
+            document.body.classList.add("is-admin");
+            showToast("Modo Administrador ATIVADO");
+            renderProducts();
+          } else if (senha !== null) { // se não clicou em cancelar, mas errou a senha
+            alert("Palavra-passe incorreta!");
+          }
+        }
       }
       setTimeout(() => { clickCount = 0; }, 1000);
     });
