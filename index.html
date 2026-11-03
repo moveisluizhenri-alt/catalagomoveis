@@ -85,7 +85,6 @@
     .btn-danger { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
     .btn-danger:hover { background-color: var(--danger); color: #fff; }
 
-    /* Botão de Admin Discreto para Clientes */
     .admin-only { display: none !important; }
     body.is-admin .admin-only { display: inline-flex !important; }
 
@@ -126,11 +125,12 @@
       width: 100%;
     }
 
+    /* Correção aplicada aqui: adicionado padding de 1.5rem para evitar cortes no brilho */
     .categories-list {
       display: flex;
       gap: 1.5rem;
       overflow-x: auto;
-      padding-bottom: 0.75rem;
+      padding: 1.5rem 1rem;
       max-width: 100%;
       justify-content: center;
       scrollbar-width: none;
@@ -737,7 +737,6 @@
         card.className = "card";
         card.setAttribute("data-id", item.id);
         
-        // Botões de administração só aparecem se o modo admin estiver ativado
         const adminButtonsHTML = isAdmin ? `
           <div style="display: flex; gap: 0.4rem;">
             <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem;" onclick="editProduct('${item.id}')">Editar</button>
@@ -745,7 +744,6 @@
           </div>
         ` : '';
 
-        // Botão do zap removido daqui de fora
         card.innerHTML = `
           <div class="card-img-wrapper" onclick="openLightbox('${item.id}')">
             <img src="${item.imageUrl}" alt="${item.name}">
@@ -858,7 +856,6 @@
       document.getElementById("lightboxDetails").innerText = item.details || "";
       document.getElementById("lightboxPrice").innerText = `R$ ${item.price}`;
       
-      // Aqui nós injetamos os dados da foto específica no botão do WhatsApp
       const zapBtn = document.getElementById("btnZapLightbox");
       const zapText = encodeURIComponent(`Olá, gostei deste móvel do catálogo:\n\n*${item.name}*\nPreço: R$ ${item.price}\n\nVeja a foto: ${item.imageUrl}`);
       zapBtn.href = `https://api.whatsapp.com/send?text=${zapText}`;
@@ -908,7 +905,6 @@
       document.getElementById("adminModal").classList.add("active");
     });
 
-    // Segredo para ativar o modo administrador: Clique 3 vezes seguidas no título "MÓVEIS PRA JÁ" no topo
     let clickCount = 0;
     document.getElementById("brandTitle").addEventListener("click", () => {
       clickCount++;
