@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Móveis Pra Já | Catálogo & Lookbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    :root {
+      --bg: #0c0d0e;
+      --surface: #141618;
+      --surface-card: #191c1f;
+      --border: #262a2e;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #d4a373;
+      --accent-hover: #faedcd;
+      --danger: #ef4444;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background-color: rgba(20, 22, 24, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .brand-title span { color: var(--accent); }
+
+    .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+
+    .btn {
+      padding: 0.55rem 1rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+
+    .btn-primary { background-color: var(--accent); color: #111; }
+    .btn-primary:hover { background-color: var(--accent-hover); }
+
+    .btn-secondary {
+      background-color: var(--surface);
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+    .btn-secondary:hover { border-color: var(--text-muted); }
+
+    .btn-danger { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { background-color: var(--danger); color: #fff; }
+
+    /* Botão de Admin Discreto para Clientes */
+    .admin-only { display: none !important; }
+    body.is-admin .admin-only { display: inline-flex !important; }
+
+    .hero {
+      padding: 3rem 1.5rem 1.2rem;
+      text-align: center;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.6rem;
+      font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: -1.2px;
+      color: #fff;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero p { 
+      color: var(--text-muted); 
+      font-size: 1.05rem; 
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    .filter-bar {
+      max-width: 1200px;
+      margin: 1rem auto 1.5rem;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      width: 100%;
+    }
+
+    .categories-list {
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.75rem;
+      max-width: 100%;
+      justify-content: center;
+      scrollbar-width: none;
+    }
+    .categories-list::-webkit-scrollbar { display: none; }
+
+    .category-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      min-width: 85px;
+      opacity: 0.65;
+      transition: all 0.2s ease;
+    }
+
+    .category-item:hover, .category-item.active {
+      opacity: 1;
+    }
+
+    .cat-thumb {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      background-color: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 4px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
+
+    .category-item.active .cat-thumb {
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(212, 163, 115, 0.4);
+      transform: scale(1.06);
+    }
+
+    .cat-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      background-color: #fff;
+    }
+
+    .cat-name {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      white-space: nowrap;
+      transition: color 0.2s;
+      text-align: center;
+      letter-spacing: -0.2px;
+    }
+
+    .category-item.active .cat-name {
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .search-input {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 999px;
+      outline: none;
+      width: 100%;
+      max-width: 500px;
+      font-size: 0.95rem;
+      text-align: center;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .search-input:focus { border-color: var(--accent); }
+
+    .catalog-container {
+      max-width: 1200px;
+      margin: 0 auto 3rem;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+
+    .drag-hint {
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(212, 163, 115, 0.1);
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(212, 163, 115, 0.2);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+      user-select: none;
+    }
+
+    body.is-admin .card { cursor: grab; }
+    body.is-admin .card:active { cursor: grabbing; }
+
+    .card.sortable-ghost {
+      opacity: 0.3;
+      border: 2px dashed var(--accent);
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: #3b4249;
+    }
+
+    .card-img-wrapper {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      background: #080808;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+    }
+
+    .card-img-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .card-content {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-tag {
+      font-size: 0.75rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .card-details {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin-bottom: 1rem;
+      flex: 1;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--border);
+      padding-top: 0.85rem;
+      margin-top: auto;
+    }
+
+    .card-price {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 650px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.35rem;
+      color: var(--text-muted);
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.65rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .lightbox-box {
+      max-width: 900px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lightbox-img {
+      width: 100%;
+      max-height: 65vh;
+      object-fit: contain;
+      background: #050505;
+    }
+
+    .lightbox-bar {
+      padding: 1.2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      color: var(--text-muted);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--accent);
+      color: #111;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.875rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      z-index: 200;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-title" id="brandTitle" title="Clique 3 vezes para ativar o modo admin">MÓVEIS <span>PRA JÁ</span></div>
+    <div class="header-actions">
+      <button class="btn btn-primary admin-only" id="btnAdmin">Gerir Produtos</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Catálogo de <span>Móveis</span></h1>
+    <p>Peças selecionadas com pronta entrega e preço de fábrica.</p>
+  </section>
+
+  <div class="filter-bar">
+    <div class="categories-list" id="categoryFilters">
+      
+      <div class="category-item active" data-cat="todos">
+        <div class="cat-thumb" style="display: flex; align-items: center; justify-content: center; background-color: rgba(212, 163, 115, 0.15);">
+          <span style="font-size: 2rem; color: var(--accent); line-height: 1;">★</span>
+        </div>
+        <span class="cat-name">Todos</span>
+      </div>
+
+      <div class="category-item" data-cat="Rack e Painel">
+        <div class="cat-thumb">
+          <img src="https://srmoveisatacadao.com.br/imagem/Conj-Rk-Nbr-Vdr-Off_Ntl-Painel-Nbr-Ntl.jpg?t=1793452137531" alt="Rack e Painel">
+        </div>
+        <span class="cat-name">Rack e Painel</span>
+      </div>
+
+      <div class="category-item" data-cat="Mesa">
+        <div class="cat-thumb">
+          <img src="https://srmoveisatacadao.com.br/imagem/Sala-Ibi-4c-Safira%20Mel_Blonde-Vel-Marfim%20novo.jpg?t=1793453015867" alt="Mesa">
+        </div>
+        <span class="cat-name">Mesa</span>
+      </div>
+
+      <div class="category-item" data-cat="Sofá">
+        <div class="cat-thumb">
+          <img src="https://srmoveisatacadao.com.br/imagem/Sofa-Canto-M146-B484.jpg?t=1793451199092" alt="Sofá">
+        </div>
+        <span class="cat-name">Sofá</span>
+      </div>
+
+      <div class="category-item" data-cat="Cama Casal">
+        <div class="cat-thumb">
+          <img src="https://srmoveisatacadao.com.br/imagem/CamaCasalLionBranco%20novo.jpg?t=1793451514152" alt="Cama Casal">
+        </div>
+        <span class="cat-name">Cama Casal</span>
+      </div>
+
+      <div class="category-item" data-cat="Cama Solteiro">
+        <div class="cat-thumb">
+          <img src="https://srmoveisatacadao.com.br/imagem/CamaSolteiroLailaJqtbOff.jpg?t=1793451575809" alt="Cama Solteiro">
+        </div>
+        <span class="cat-name">Cama Solteiro</span>
+      </div>
+
+      <div class="category-item" data-cat="Guarda Roupa">
+        <div class="cat-thumb">
+          <img src="https://srmoveisatacadao.com.br/imagem/16412_1.jpg?t=1793453052695" alt="Guarda Roupa">
+        </div>
+        <span class="cat-name">Guarda Roupa</span>
+      </div>
+
+      <div class="category-item" data-cat="Cozinha">
+        <div class="cat-thumb">
+          <img src="https://srmoveisatacadao.com.br/imagem/COZINHA-EDUARDA-4-P%C3%87S-CINAMOMO.OFF.jpg?t=1793451441489" alt="Cozinha">
+        </div>
+        <span class="cat-name">Cozinha</span>
+      </div>
+
+      <div class="category-item" data-cat="Combos">
+        <div class="cat-thumb">
+          <img src="https://atacadaonossostock.com.br/wp-content/uploads/2025/11/3168c43b-f821-4db5-adab-948a7380f8df.png" alt="Combos">
+        </div>
+        <span class="cat-name">Combos</span>
+      </div>
+
+    </div>
+    
+    <input type="text" class="search-input" id="searchInput" placeholder="Pesquisar por nome ou medida...">
+  </div>
+
+  <main class="catalog-container">
+    <div class="drag-hint admin-only" id="dragHint" style="display: none;">
+      ⠿ <strong>Dica:</strong> Você pode clicar e arrastar os produtos para organizar a sequência da categoria.
+    </div>
+    <div class="grid" id="productGrid"></div>
+    <div class="empty-state" id="emptyState" style="display: none;">
+      Nenhum móvel encontrado nesta categoria.
+    </div>
+  </main>
+
+  <!-- MODAL DE ADMINISTRAÇÃO -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modalTitle" style="font-family: 'Space Grotesk', sans-serif;">Adicionar Produto</h2>
+        <button class="modal-close" onclick="closeModals()">&times;</button>
+      </div>
+
+      <form id="productForm">
+        <input type="hidden" id="editProductId">
+
+        <div class="form-group">
+          <label>Nome do Móvel</label>
+          <input type="text" id="prodName" required placeholder="Ex: Cama Casal Box Dubai D33">
+        </div>
+
+        <div class="form-group">
+          <label>Categoria</label>
+          <select id="prodCategory" required>
+            <option value="Rack e Painel">Rack e Painel</option>
+            <option value="Mesa">Mesa</option>
+            <option value="Sofá">Sofá</option>
+            <option value="Cama Casal">Cama Casal</option>
+            <option value="Cama Solteiro">Cama Solteiro</option>
+            <option value="Guarda Roupa">Guarda Roupa</option>
+            <option value="Cozinha">Cozinha</option>
+            <option value="Combos">Combos</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Preço (R$)</label>
+          <input type="text" id="prodPrice" required placeholder="Ex: 409,00">
+        </div>
+
+        <div class="form-group">
+          <label>Medidas e Especificações</label>
+          <textarea id="prodDetails" rows="2" placeholder="Ex: 1,38 x 1,88 x 0,48 | 100% Espuma D33"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Foto do Produto (Arquivo do Computador ou Celular)</label>
+          <input type="file" id="prodFile" accept="image/*">
+        </div>
+
+        <div class="form-group">
+          <label>Ou Link Direto da Foto (URL)</label>
+          <input type="url" id="prodImageUrl" placeholder="https://exemplo.com/foto.jpg">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="saveBtn">Guardar Produto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL DE VISUALIZAÇÃO (LIGHTBOX) -->
+  <div class="modal-overlay" id="lightboxModal">
+    <div class="lightbox-box">
+      <img id="lightboxImg" class="lightbox-img" src="" alt="Imagem ampliada">
+      <div class="lightbox-bar">
+        <div>
+          <h3 id="lightboxTitle" style="font-size: 1.15rem; margin-bottom: 0.2rem;"></h3>
+          <p id="lightboxDetails" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.35rem;"></p>
+          <span id="lightboxPrice" style="color: var(--accent); font-weight: 700; font-size: 1.1rem;"></span>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn btn-primary" id="btnCopyDetails">Copiar Detalhes</button>
+          <a class="btn btn-secondary" id="btnDownload" href="" download target="_blank">Baixar Foto</a>
+          <button class="btn btn-secondary" onclick="closeModals()">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Copiado com sucesso!</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getFirestore, 
+      collection, 
+      onSnapshot, 
+      addDoc, 
+      doc, 
+      updateDoc, 
+      deleteDoc 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBcA4VN5aSijRq1BnuhRHTNqXiNHXBhUR4",
+      authDomain: "moveispraja.firebaseapp.com",
+      projectId: "moveispraja",
+      storageBucket: "moveispraja.firebasestorage.app",
+      messagingSenderId: "164146043451",
+      appId: "1:164146043451:web:4ddef6e1d67c44ea19da1e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const productsCol = collection(db, "produtos");
+
+    let products = [];
+    let activeCategory = "todos";
+    let searchTerm = "";
+    let sortableInstance = null;
+
+    function normalizeCategory(cat) {
+      if (!cat) return "";
+      const c = cat.trim();
+      if (c === "Quarto Casal" || c === "Cama Casal") return "Cama Casal";
+      if (c === "Quarto Solteiro" || c === "Cama Solteiro") return "Cama Solteiro";
+      if (c === "Sala de Estar" || c === "Rack e Painel") return "Rack e Painel";
+      if (c === "Sala de Jantar" || c === "Mesa") return "Mesa";
+      return c;
+    }
+
+    function compressImage(file, maxWidth = 1000, quality = 0.75) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", quality));
+          };
+        };
+      });
+    }
+
+    onSnapshot(productsCol, (snapshot) => {
+      products = [];
+      snapshot.forEach(docSnap => {
+        products.push({ id: docSnap.id, ...docSnap.data() });
+      });
+      renderProducts();
+    });
+
+    window.renderProducts = function() {
+      const grid = document.getElementById("productGrid");
+      const emptyState = document.getElementById("emptyState");
+      const dragHint = document.getElementById("dragHint");
+      const isAdmin = document.body.classList.contains("is-admin");
+
+      products.sort((a, b) => {
+        const orderA = (a.order !== undefined && a.order !== null) ? Number(a.order) : 99999;
+        const orderB = (b.order !== undefined && b.order !== null) ? Number(b.order) : 99999;
+        return orderA - orderB;
+      });
+
+      const filtered = products.filter(p => {
+        const productCategoryNormalized = normalizeCategory(p.category);
+        const matchCategory = activeCategory === "todos" || productCategoryNormalized === activeCategory;
+        const matchSearch = (p.name && p.name.toLowerCase().includes(searchTerm.toLowerCase())) || 
+                            (p.details && p.details.toLowerCase().includes(searchTerm.toLowerCase()));
+        return matchCategory && matchSearch;
+      });
+
+      grid.innerHTML = "";
+
+      if (filtered.length === 0) {
+        emptyState.style.display = "block";
+        if (dragHint) dragHint.style.display = "none";
+        return;
+      }
+
+      emptyState.style.display = "none";
+      if (dragHint) dragHint.style.display = (isAdmin && activeCategory !== "todos") ? "block" : "none";
+
+      filtered.forEach(item => {
+        const displayCat = normalizeCategory(item.category);
+        const card = document.createElement("div");
+        card.className = "card";
+        card.setAttribute("data-id", item.id);
+        
+        // Botões de administração só aparecem se o modo admin estiver ativado
+        const adminButtonsHTML = isAdmin ? `
+          <div style="display: flex; gap: 0.4rem;">
+            <button class="btn btn-secondary" style="padding: 0.35rem 0.65rem;" onclick="editProduct('${item.id}')">Editar</button>
+            <button class="btn btn-danger" style="padding: 0.35rem 0.65rem;" onclick="deleteProduct('${item.id}')">Excluir</button>
+          </div>
+        ` : '';
+
+        card.innerHTML = `
+          <div class="card-img-wrapper" onclick="openLightbox('${item.id}')">
+            <img src="${item.imageUrl}" alt="${item.name}">
+          </div>
+          <div class="card-content">
+            <span class="card-tag">${displayCat}</span>
+            <h3 class="card-title">${item.name}</h3>
+            <p class="card-details">${item.details || ''}</p>
+            <div class="card-footer">
+              <span class="card-price">R$ ${item.price}</span>
+              ${adminButtonsHTML}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      if (sortableInstance) sortableInstance.destroy();
+
+      if (isAdmin && activeCategory !== "todos") {
+        sortableInstance = new Sortable(grid, {
+          animation: 200,
+          ghostClass: 'sortable-ghost',
+          filter: 'button, .card-footer, .card-img-wrapper',
+          preventOnFilter: false,
+          onEnd: async function() {
+            const cards = Array.from(grid.querySelectorAll(".card"));
+            showToast("A guardar nova sequência...");
+            try {
+              const promises = cards.map((cardEl, index) => {
+                const id = cardEl.getAttribute("data-id");
+                return updateDoc(doc(db, "produtos", id), { order: index + 1 });
+              });
+              await Promise.all(promises);
+            } catch (err) {
+              console.error("Erro ao salvar ordem:", err);
+            }
+          }
+        });
+      }
+    };
+
+    document.getElementById("productForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById("saveBtn");
+      saveBtn.disabled = true;
+      saveBtn.innerText = "A guardar...";
+
+      const editId = document.getElementById("editProductId").value;
+      const name = document.getElementById("prodName").value;
+      const category = document.getElementById("prodCategory").value;
+      const price = document.getElementById("prodPrice").value;
+      const details = document.getElementById("prodDetails").value;
+      let imageUrl = document.getElementById("prodImageUrl").value;
+      const file = document.getElementById("prodFile").files[0];
+
+      if (file) imageUrl = await compressImage(file);
+      if (!imageUrl) imageUrl = "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80";
+
+      const payload = { name, category, price, details, imageUrl };
+
+      try {
+        if (editId) {
+          await updateDoc(doc(db, "produtos", editId), payload);
+        } else {
+          payload.order = products.length + 1;
+          await addDoc(productsCol, payload);
+        }
+        closeModals();
+        showToast("Produto guardado!");
+      } catch (err) {
+        alert("Erro ao guardar: " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = "Guardar Produto";
+      }
+    });
+
+    window.deleteProduct = async function(id) {
+      if (confirm("Tem a certeza de que pretende remover este produto?")) {
+        try {
+          await deleteDoc(doc(db, "produtos", id));
+          showToast("Produto removido.");
+        } catch (err) {
+          alert("Erro ao remover: " + err.message);
+        }
+      }
+    };
+
+    window.editProduct = function(id) {
+      const item = products.find(p => p.id === id);
+      if (!item) return;
+
+      document.getElementById("editProductId").value = item.id;
+      document.getElementById("prodName").value = item.name;
+      document.getElementById("prodCategory").value = normalizeCategory(item.category);
+      document.getElementById("prodPrice").value = item.price;
+      document.getElementById("prodDetails").value = item.details || "";
+      document.getElementById("prodImageUrl").value = item.imageUrl.startsWith("data:") ? "" : item.imageUrl;
+      document.getElementById("modalTitle").innerText = "Editar Produto";
+      document.getElementById("adminModal").classList.add("active");
+    };
+
+    window.openLightbox = function(id) {
+      const item = products.find(p => p.id === id);
+      if (!item) return;
+
+      document.getElementById("lightboxImg").src = item.imageUrl;
+      document.getElementById("lightboxTitle").innerText = item.name;
+      document.getElementById("lightboxDetails").innerText = item.details || "";
+      document.getElementById("lightboxPrice").innerText = `R$ ${item.price}`;
+      
+      const copyBtn = document.getElementById("btnCopyDetails");
+      copyBtn.onclick = () => {
+        const textToCopy = `*${item.name}*\nPreço: R$ ${item.price}\n${item.details ? 'Medidas: ' + item.details : ''}`;
+        navigator.clipboard.writeText(textToCopy);
+        showToast("Dados do produto copiados!");
+      };
+
+      const downloadBtn = document.getElementById("btnDownload");
+      downloadBtn.href = item.imageUrl;
+
+      document.getElementById("lightboxModal").classList.add("active");
+    };
+
+    window.closeModals = function() {
+      document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
+      document.getElementById("productForm").reset();
+      document.getElementById("editProductId").value = "";
+      document.getElementById("modalTitle").innerText = "Adicionar Produto";
+    };
+
+    window.showToast = function(msg) {
+      const toast = document.getElementById("toast");
+      toast.innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2500);
+    };
+
+    document.querySelectorAll(".category-item").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".category-item").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeCategory = btn.dataset.cat;
+        renderProducts();
+      });
+    });
+
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      searchTerm = e.target.value;
+      renderProducts();
+    });
+
+    document.getElementById("btnAdmin").addEventListener("click", () => {
+      document.getElementById("productForm").reset();
+      document.getElementById("editProductId").value = "";
+      document.getElementById("modalTitle").innerText = "Adicionar Produto";
+      document.getElementById("adminModal").classList.add("active");
+    });
+
+    // Segredo para ativar o modo administrador: Clique 3 vezes seguidas no título "MÓVEIS PRA JÁ" no topo
+    let clickCount = 0;
+    document.getElementById("brandTitle").addEventListener("click", () => {
+      clickCount++;
+      if (clickCount >= 3) {
+        document.body.classList.toggle("is-admin");
+        const active = document.body.classList.contains("is-admin");
+        showToast(active ? "Modo Administrador ATIVADO" : "Modo Administrador DESativado");
+        renderProducts();
+        clickCount = 0;
+      }
+      setTimeout(() => { clickCount = 0; }, 1000);
+    });
+  </script>
+</body>
+</html>
