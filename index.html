@@ -6,7 +6,7 @@
   <title>Móveis Pra Já | Catálogo & Lookbook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
   <style>
     :root {
@@ -101,7 +101,7 @@
       font-weight: 700;
       line-height: 1.15;
       margin-bottom: 0.6rem;
-      font-family: 'Space Grotesk', sans-serif;
+      font-family: 'Poppins', sans-serif;
       letter-spacing: -1.2px;
       color: #fff;
     }
@@ -614,9 +614,11 @@
           <p id="lightboxDetails" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.35rem;"></p>
           <span id="lightboxPrice" style="color: var(--accent); font-weight: 700; font-size: 1.1rem;"></span>
         </div>
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 10px;">
+          <!-- O botão verde brilhante agora fica AQUI, junto com a foto ampliada -->
+          <a class="btn" id="btnZapLightbox" href="" target="_blank" style="background-color: #25D366; color: white; border: none; font-weight: bold;">📲 Enviar p/ Vendedor</a>
+          
           <button class="btn btn-primary" id="btnCopyDetails">Copiar Detalhes</button>
-          <a class="btn btn-secondary" id="btnDownload" href="" download target="_blank">Baixar Foto</a>
           <button class="btn btn-secondary" onclick="closeModals()">Fechar</button>
         </div>
       </div>
@@ -743,6 +745,7 @@
           </div>
         ` : '';
 
+        // Botão do zap removido daqui de fora
         card.innerHTML = `
           <div class="card-img-wrapper" onclick="openLightbox('${item.id}')">
             <img src="${item.imageUrl}" alt="${item.name}">
@@ -766,7 +769,7 @@
         sortableInstance = new Sortable(grid, {
           animation: 200,
           ghostClass: 'sortable-ghost',
-          filter: 'button, .card-footer, .card-img-wrapper',
+          filter: 'button, .card-footer, .card-img-wrapper, a',
           preventOnFilter: false,
           onEnd: async function() {
             const cards = Array.from(grid.querySelectorAll(".card"));
@@ -855,15 +858,17 @@
       document.getElementById("lightboxDetails").innerText = item.details || "";
       document.getElementById("lightboxPrice").innerText = `R$ ${item.price}`;
       
+      // Aqui nós injetamos os dados da foto específica no botão do WhatsApp
+      const zapBtn = document.getElementById("btnZapLightbox");
+      const zapText = encodeURIComponent(`Olá, gostei deste móvel do catálogo:\n\n*${item.name}*\nPreço: R$ ${item.price}\n\nVeja a foto: ${item.imageUrl}`);
+      zapBtn.href = `https://api.whatsapp.com/send?text=${zapText}`;
+      
       const copyBtn = document.getElementById("btnCopyDetails");
       copyBtn.onclick = () => {
         const textToCopy = `*${item.name}*\nPreço: R$ ${item.price}\n${item.details ? 'Medidas: ' + item.details : ''}`;
         navigator.clipboard.writeText(textToCopy);
         showToast("Dados do produto copiados!");
       };
-
-      const downloadBtn = document.getElementById("btnDownload");
-      downloadBtn.href = item.imageUrl;
 
       document.getElementById("lightboxModal").classList.add("active");
     };
