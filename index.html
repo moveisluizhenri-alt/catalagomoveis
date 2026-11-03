@@ -131,10 +131,16 @@
       overflow-x: auto;
       padding: 1.5rem 1rem;
       max-width: 100%;
-      justify-content: center;
+      justify-content: flex-start; 
       scrollbar-width: none;
     }
     .categories-list::-webkit-scrollbar { display: none; }
+
+    @media (min-width: 900px) {
+      .categories-list {
+        justify-content: center;
+      }
+    }
 
     .category-item {
       display: flex;
@@ -460,7 +466,7 @@
   </header>
 
   <section class="hero">
-    <h1>Catálogo de <span>Móveis</span></h1>
+    <h1>Catálogo <span>Digital</span></h1>
     <p>Peças selecionadas com pronta entrega e preço de fábrica.</p>
   </section>
 
@@ -614,7 +620,7 @@
           <span id="lightboxPrice" style="color: var(--accent); font-weight: 700; font-size: 1.1rem;"></span>
         </div>
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 10px;">
-          <a class="btn" id="btnZapLightbox" href="" target="_blank" style="background-color: #25D366; color: white; border: none; font-weight: bold;">📲 Enviar p/ Vendedor</a>
+          <a class="btn" id="btnZapLightbox" href="" target="_blank" style="background-color: #25D366; color: white; border: none; font-weight: bold;">📲 Enviar p/ WhatsApp</a>
           <button class="btn btn-primary" id="btnCopyDetails">Copiar Detalhes</button>
           <button class="btn btn-secondary" onclick="closeModals()">Fechar</button>
         </div>
@@ -902,28 +908,25 @@
       document.getElementById("adminModal").classList.add("active");
     });
 
-    // SISTEMA DE SENHA NOS 3 CLIQUES
     let clickCount = 0;
     document.getElementById("brandTitle").addEventListener("click", () => {
       clickCount++;
       if (clickCount >= 3) {
-        clickCount = 0; // zera o contador
+        clickCount = 0;
         const isActive = document.body.classList.contains("is-admin");
         
         if (isActive) {
-          // Se já estiver logado, bloqueia na hora sem pedir senha
           document.body.classList.remove("is-admin");
           showToast("Modo Administrador DESativado");
           renderProducts();
         } else {
-          // Se estiver bloqueado, pede a senha
           const senha = prompt("Introduza a palavra-passe para editar o catálogo:");
           
           if (senha === "moveis123") {
             document.body.classList.add("is-admin");
             showToast("Modo Administrador ATIVADO");
             renderProducts();
-          } else if (senha !== null) { // se não clicou em cancelar, mas errou a senha
+          } else if (senha !== null) {
             alert("Palavra-passe incorreta!");
           }
         }
